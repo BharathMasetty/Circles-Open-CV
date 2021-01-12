@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 2.8)
+project(Circles LANGUAGES CXX)
+find_package( OpenCV REQUIRED )
+message(STATUS "OpenCV_LIBS = ${OpenCV_LIBS}")
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( drawcircle drawCircle.cpp )
+add_executable( generatecircle generateCircle.cpp )
+target_link_libraries( generatecircle ${OpenCV_LIBS} )
+target_link_libraries( drawcircle ${OpenCV_LIBS} )
+

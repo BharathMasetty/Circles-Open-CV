@@ -1,0 +1,4 @@
+/media/bharath/Storage/neosis_ubuntu/build/CMakeFiles/edit_cache.dir
+/media/bharath/Storage/neosis_ubuntu/build/CMakeFiles/drawcircle.dir
+/media/bharath/Storage/neosis_ubuntu/build/CMakeFiles/rebuild_cache.dir
+/media/bharath/Storage/neosis_ubuntu/build/CMakeFiles/generatecircle.dir
