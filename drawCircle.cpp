@@ -13,6 +13,9 @@ Circle *c_ptr;
 Mat image(600, 600, CV_8UC3, Scalar(255,255,255));
 const string window_name = "circle";
 
+/**
+ * Method to draw grid of squares in the image
+ */
 void Circle::drawGrid(){
 	
 	float startPoint = ((float)kDisplaySize - ((float)kNumGridSize)*kSpaceBetweenSquares)*0.5;
@@ -31,7 +34,9 @@ void Circle::drawGrid(){
 	imshow(kwindowName, image_);
 }
 
-
+/*
+ * Method to draw circles
+ */
 void Circle::drawCircle(const Point &center, const int &r_min, const int &r_max, Mat &current_view){
 	
 	// inner cirlce
@@ -41,12 +46,18 @@ void Circle::drawCircle(const Point &center, const int &r_min, const int &r_max,
 
 }
 
+/*
+ * Method to draw highlighted squares at choses points in the grid.
+ */
 void Circle::drawRectangles(const std::vector<Point> &activePoints, Mat &current_view) {
 	for (const Point &point : activePoints) {
 		rectangle(current_view, Point(point.x-squareSide, point.y-squareSide), Point(point.x+squareSide, point.y+squareSide), Scalar(255,0,0), -1);
 	}
 }
 
+/**
+ * main process frame governed by the mouse functionality
+ */
 void Circle::processFrame(const int &event, const int &x, const int &y) {
 	if (event == EVENT_LBUTTONDOWN){
 		if (!start_draw){
@@ -95,11 +106,16 @@ void Circle::processFrame(const int &event, const int &x, const int &y) {
 
 }
 
-
+/**
+ * Callback function for mouse operations
+ */
 void on_mouse(int event, int x, int y, int, void *) {
 	c_ptr->processFrame(event, x, y);
 }
 
+/**
+ * Main execution
+ */
 int main(int argc, const char** argv) {
 
 	namedWindow(window_name, WINDOW_AUTOSIZE);

@@ -14,6 +14,9 @@ Circle *c_ptr;
 Mat image(600, 600, CV_8UC3, Scalar(255,255,255));
 const string window_name = "circle";
 
+/**
+ * Method to draw grid of squares in the image
+ */
 void Circle::drawGrid(){
 	
 	float startPoint = ((float)kDisplaySize - ((float)kNumGridSize)*kSpaceBetweenSquares)*0.5;
@@ -35,6 +38,9 @@ void Circle::drawGrid(){
 	imshow(kwindowName, image_);
 }
 
+/*
+ * Method to draw circles
+ */
 
 void Circle::drawCircle(const Point &center, const int &r_min, const int &r_max, Mat &current_view){
 	
@@ -45,12 +51,18 @@ void Circle::drawCircle(const Point &center, const int &r_min, const int &r_max,
 
 }
 
+/*
+ * Method to draw highlighted squares at choses points in the grid.
+ */
 void Circle::drawRectangles(const std::vector<Point> &activePoints, Mat &current_view) {
 	for (const Point &point : activePoints) {
 		rectangle(current_view, Point(point.x-squareSide, point.y-squareSide), Point(point.x+squareSide, point.y+squareSide), Scalar(255,0,0), -1);
 	}
 }
 
+/**
+ * main process frame governed by the mouse functionality
+ */
 void Circle::processFrame(const int &event, const int &x, const int &y) {
 
 	Point contactPoint(x,y);
@@ -103,11 +115,15 @@ void Circle::processFrame(const int &event, const int &x, const int &y) {
 
 }
 
+/**
+ * Iterative least squares solution for fitting the circle
+ * Reference: https://www.cse.iitb.ac.in/~cs749/spr2017/handouts/eberly_least_square_fitting.pdf
+ */
 void Circle::leastSquareFitCircle(Mat &current_view) {
 	
 
-	// Fixed point itereation method
-		
+	// Initial estimates for center, taken as the mean of all the data points.
+	// Cost function in this case is summation of all norms from the center to all the data points.
 	Point Center = accumulate(contourPoints.begin(), contourPoints.end(), Point(0,0))/(float)contourPoints.size();
 	float radius;
 
@@ -122,7 +138,7 @@ void Circle::leastSquareFitCircle(Mat &current_view) {
 		int m = contourPoints.size();
 		float x_ = 0;
 		float y_ = 0;
-
+		
 		for (const Point &point: contourPoints) {
 			float value = norm(Center-point);
 			Norms.push_back(value);
@@ -132,18 +148,25 @@ void Circle::leastSquareFitCircle(Mat &current_view) {
 			x_ += point.x;
 			y_ += point.y;
 		}
+
+		// This radius equation comes from equating the partial derivative of cost function the  wrt radius to zero. 
 		radius = Cost/(float)m;
+
 		La_ = La_/(float)m;
 		Lb_ = Lb_/(float)m;
 		x_ = x_/(float)m;
 		y_ = y_/(float)m;
-
+		
+		// a_1 and b_1 are estimates of the x and y coordinates of the center for the next iteration. 
+		// They come from equating the partial derivatives of the cost function wrt to a and b to zero respectively.
 		float a_1 = x_ + radius*La_;
 	        float b_1 = y_ + radius*Lb_;
 		
+		// Checking the convergance condition
 		if (abs(a_1 - a)<1e-3 || abs(b_1 - b) <1e-3)
 			break;
 
+		// setting the new center for next iteration
 		Center = Point(a_1,b_1);
 
 	}	
@@ -153,17 +176,24 @@ void Circle::leastSquareFitCircle(Mat &current_view) {
                         Cost += norm(point-Center);
                 }
         radius = Cost/((float)contourPoints.size());
+
+	// Final solutions of the iterative least squares process
 	ls_center = Center;
 	ls_radius = radius;
 
 	circle(current_view, Center, (int)radius, Scalar(255,0,0),1,8);
 }
 
-
+/**
+ * Callback function for mouse operations
+ */
 void on_mouse(int event, int x, int y, int, void *) {
 	c_ptr->processFrame(event, x, y);
 }
 
+/**
+ * Main execution
+ */
 int main(int argc, const char** argv) {
 
 	namedWindow(window_name, WINDOW_AUTOSIZE);
